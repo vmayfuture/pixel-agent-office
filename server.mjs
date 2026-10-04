@@ -555,7 +555,7 @@ async function planTask(run, initialAgent, initialProvider, requestedAgentId, re
   const step = startStep(task, initialAgent.id, '判断任务与分工');
   step.providerName = initialProvider.name;
   const members = agents.map(person => ({ id: person.id, name: person.name, specialty: person.expertise, provider: settings.providers.find(item => item.id === person.providerId)?.name || '' }));
-  const planningPrompt = `你是 AI 小队的任务调度员。只分析任务、返回一个 JSON 对象，不要执行任务，不要调用工具，不要写文件，也不要加 Markdown。\n用户任务：${task.prompt}\n可用成员：${JSON.stringify(members)}\n${requestedAgentId ? `主办成员必须是 ${requestedAgentId}。` : ''}\n判断原则：简单任务只用一人；只有存在真正可分开的工作时才安排协作，最多三人。前一步结果必须给下一位时选 relay；可独立处理的部分选 parallel。不要为了热闹而拆分。\n格式：{"mode":"solo|relay|parallel","leadAgentId":"成员 id","workers":[{"agentId":"成员 id","focus":"具体负责什么"}],"reason":"一句话说明判断"}。solo 的 workers 为空；协作时 workers 是除主办外的 1 到 2 位成员。只使用上述 id。`;
+  const planningPrompt = `你是 AI 小队的任务调度员。只分析任务、返回一个 JSON 对象，不要执行任务，不要调用工具，不要写文件，也不要加 Markdown。\n用户任务：${task.prompt}\n可用成员：${JSON.stringify(members)}\n${requestedAgentId ? `主办成员必须是 ${requestedAgentId}。` : ''}\n判断原则：用户只要一个简单结果时必须 solo，例如一句话介绍、简短问答、翻译、改写、简短文案。不要把简单写作强行拆成“搜集资料”和“撰写内容”。只有任务确实有两项以上实质工作、且不同成员各有清楚的交付物时才协作，最多三人。前一步结果必须给下一位时选 relay；真正可以独立完成的不同成果才选 parallel。无法确定时选 solo。\n格式：{"mode":"solo|relay|parallel","leadAgentId":"成员 id","workers":[{"agentId":"成员 id","focus":"具体负责什么"}],"reason":"一句话说明判断"}。solo 的 workers 为空；协作时 workers 是除主办外的 1 到 2 位成员。只使用上述 id。`;
   try {
     let answer;
     if (initialProvider.type === 'ollama') answer = await runOllama(run, initialAgent, initialProvider, planningPrompt);
@@ -565,6 +565,14 @@ async function planTask(run, initialAgent, initialProvider, requestedAgentId, re
     const match = cleanModelText(answer).match(/\{[\s\S]*\}/);
     const proposal = JSON.parse(match?.[0] || 'null');
     if (!proposal || !['solo', 'relay', 'parallel'].includes(proposal.mode)) throw new Error('分工格式不完整');
+    // Small models sometimes invent a research/writing split for an explicit short answer.
+    const clearlySingleAnswer = task.prompt.length < 120 && /一句话|一行|单句|简短回答|简单介绍|简短介绍|翻译(?:这|一|成)|只用.{0,12}(?:字|句)/.test(task.prompt);
+    if (clearlySingleAnswer && proposal.mode !== 'solo') {
+      proposal.mode = 'solo';
+      proposal.leadAgentId = requestedAgentId || initialAgent.id;
+      proposal.workers = [];
+      proposal.reason = '任务只要求一个简短结果，一位成员即可完成。';
+    }
     const lead = agents.find(person => person.id === (requestedAgentId || proposal.leadAgentId));
     if (!lead) throw new Error('主办成员无效');
     const workers = proposal.mode === 'solo' ? [] : (Array.isArray(proposal.workers) ? proposal.workers : []).slice(0, 2);
