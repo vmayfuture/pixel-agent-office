@@ -34,6 +34,7 @@ export function setupSettings({ getSettings, getHealth, save, toast }) {
     if (provider.type === 'ollama') return 'ollama';
     if (provider.type === 'openai') return 'api';
     if (provider.type === 'cli' && (provider.id === 'codex' || /^codex(?:\.exe)?$/i.test(provider.command))) return 'codex';
+    if (provider.type === 'cli' && (provider.id === 'claude' || /(?:^|[\\/])claude(?:\.exe)?$/i.test(provider.command))) return 'claude';
     if (provider.type === 'cli' && (provider.id === 'hermes' || /hermes/i.test(`${provider.command} ${provider.args}`))) return 'hermes';
     if (provider.type === 'cli') return 'local';
     return 'other';
@@ -43,13 +44,17 @@ export function setupSettings({ getSettings, getHealth, save, toast }) {
     if (kind === 'ollama') return { ...newProvider('ollama'), name: '本地 Ollama', enabled: true };
     if (kind === 'api') return { ...newProvider('openai'), name: '自定义 API', enabled: true };
     if (kind === 'codex') return { ...newProvider('cli'), name: 'Codex', enabled: true, command: 'codex', args: 'exec\n--json\n--sandbox\nworkspace-write\n-C\n{{workspace}}\n--skip-git-repo-check\n--ephemeral\n-', promptMode: 'stdin', outputFormat: 'codex-jsonl', showFiles: true };
+    if (kind === 'claude') return { ...newProvider('cli'), name: 'Claude Code', enabled: true, command: 'claude', args: '-p\n--output-format\ntext\n--permission-mode\nacceptEdits\n--no-session-persistence\n{{prompt}}', promptMode: 'argument', outputFormat: 'text', showFiles: true };
     if (kind === 'local') return { ...newProvider('cli'), name: '其他本地 Agent', enabled: false };
     return { ...newProvider('cli'), name: 'Hermes Agent', enabled: false, command: 'hermes', args: '-z\n{{prompt}}', promptMode: 'argument', showFiles: true };
   }
 
   function setupStatus(provider) {
     if (!provider) return '还没添加';
-    if (getHealth().reasons?.[provider.id]) return '安装需修复';
+    if (getHealth().reasons?.[provider.id]) {
+      if (providerKind(provider) === 'claude') return getHealth().reasons[provider.id].includes('登录') ? '未登录' : '未安装';
+      return '安装需修复';
+    }
     if (provider.type === 'openai' && (/api\.example\.com/i.test(provider.baseUrl) || provider.model === 'your-model')) return '待填写地址和模型';
     if (provider.type === 'openai' && !provider.hasKey && !provider.apiKey && !provider.apiKeyEnv && !/127\.0\.0\.1|localhost/.test(provider.baseUrl)) return '待填写 API Key';
     if (!provider.enabled) return '未启用';
@@ -65,8 +70,10 @@ export function setupSettings({ getSettings, getHealth, save, toast }) {
     const cards = [
       ['ollama', '🏠', '本地模型', '电脑上已安装 Ollama'],
       ['codex', '⌘', 'Codex', '使用本机 Codex 登录'],
+      ['claude', '✳', 'Claude Code', '使用本机 Claude Code 登录'],
       ['hermes', '✦', 'Hermes', '使用本机 Hermes Agent'],
       ['api', '☁', '云端 API', 'DeepSeek / OpenRouter / OpenAI / 其他'],
+      ['local', '⚙', '其他本地 Agent', '自行指定启动命令'],
     ];
     const choices = cards.map(([kind, icon, title, description]) => {
       const matches = draft.providers.filter(provider => providerKind(provider) === kind);
@@ -87,6 +94,7 @@ export function setupSettings({ getSettings, getHealth, save, toast }) {
         fields = `<div class="api-service-grid wide-note">${Object.entries(apiServices).map(([key, item]) => `<button type="button" class="api-service ${service === key ? 'active' : ''}" data-action="setup-api-template" data-service="${key}">${escapeHtml(item.name)}</button>`).join('')}</div><p class="settings-note wide-note">${escapeHtml(apiServices[service].help)}</p>${service === 'custom' ? field('服务商给你的接口地址', `${base}.baseUrl`, selected.baseUrl, { max: 1000, wide: true, placeholder: 'https://api.example.com/v1' }) : ''}${field('模型 ID', `${base}.model`, selected.model === 'your-model' ? '' : selected.model, { max: 120, wide: true, placeholder: '从服务商的模型列表复制', hint: '这是服务商给出的模型标识，不是你给 Agent 取的名字。' })}${field('API Key（密钥）', `${base}.apiKey`, selected.apiKey || '', { max: 4000, wide: true, type: 'password', placeholder: selected.hasKey ? '密钥已保存；留空保持原值' : '粘贴服务商提供的 API Key', hint: '只保存在本机，页面不会再显示完整密钥。' })}${selected.hasKey ? check('删除已保存的 API Key', `${base}.clearKey`, selected.clearKey) : ''}`;
       }
       else if (kind === 'codex') fields = '<p class="settings-note wide-note">使用这台电脑已经登录的 Codex。成员任务会直接交给 Codex 执行。</p>';
+      else if (kind === 'claude') fields = `<p class="settings-note wide-note">先在本机安装 Claude Code，并在终端运行 claude auth login 登录；可用 claude auth status 检查登录状态。安装后请重启办公室，让它读取新的 PATH。这里直接调用本机 Claude Code，不需要填写 API Key。任务在本应用的 workspace 文件夹运行；默认允许文件编辑，其他工具仍遵循 Claude Code 的权限设置。</p>${getHealth().reasons?.[selected.id] ? `<p class="setup-warning wide-note">${escapeHtml(getHealth().reasons[selected.id])}</p>` : ''}`;
       else if (kind === 'hermes') fields = `<p class="settings-note wide-note">先确保在 PowerShell 中运行 hermes 可以正常工作；Hermes 自己的子代理由 Hermes 管理。若安装位置特殊，可到“高级接入设置”改启动命令。</p>${getHealth().reasons?.[selected.id] ? `<p class="setup-warning wide-note">${escapeHtml(getHealth().reasons[selected.id])}</p>` : ''}`;
       else if (kind === 'local') fields = '<p class="settings-note wide-note">这个 Agent 需要本机启动命令。请在“高级接入设置”中按它的官方安装说明填写；普通用户可先选上方的预设服务。</p>';
       else fields = '<p class="settings-note wide-note">这位 Agent 使用自定义接入方式。细节请到“高级接入设置”修改。</p>';

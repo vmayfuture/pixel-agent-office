@@ -3,7 +3,7 @@
   "version": "1.4.0",
   "private": true,
   "description": "A top-down pixel art office for AI agents with automatic task routing and multi-agent collaboration",
-  "keywords": ["ai-agents", "multi-agent", "agent-visualization", "pixel-art", "ollama", "codex", "hermes-agent"],
+  "keywords": ["ai-agents", "multi-agent", "agent-visualization", "pixel-art", "ollama", "codex", "claude-code", "hermes-agent"],
   "license": "MIT",
   "type": "module",
   "scripts": {

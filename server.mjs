@@ -647,10 +647,14 @@ async function readJson(req) {
   try { return JSON.parse(body || '{}'); } catch { throw new Error('请求格式不是有效 JSON。'); }
 }
 
-async function codexAvailable() {
+function isClaudeCommand(command) {
+  return /(?:^|[\\/])claude(?:\.exe)?$/i.test(command);
+}
+
+async function cliAvailable(command, args) {
   return new Promise(resolve => {
-    const child = spawn('codex', ['--version'], { windowsHide: true, stdio: 'ignore' });
-    const timer = setTimeout(() => { child.kill(); resolve(false); }, 2000);
+    const child = spawn(command, args, { windowsHide: true, stdio: 'ignore' });
+    const timer = setTimeout(() => { child.kill(); resolve(false); }, 3000);
     child.on('error', () => { clearTimeout(timer); resolve(false); });
     child.on('close', code => { clearTimeout(timer); resolve(code === 0); });
   });
@@ -713,7 +717,12 @@ const server = http.createServer(async (req, res) => {
         if (provider.type === 'ollama') {
           try { models[provider.id] = await availableModels(provider.baseUrl); providerHealth[provider.id] = models[provider.id].length > 0; }
           catch { models[provider.id] = []; providerHealth[provider.id] = false; }
-        } else if (provider.type === 'cli' && provider.command.toLowerCase() === 'codex') providerHealth[provider.id] = await codexAvailable();
+        } else if (provider.type === 'cli' && provider.command.toLowerCase() === 'codex') providerHealth[provider.id] = await cliAvailable('codex', ['--version']);
+        else if (provider.type === 'cli' && isClaudeCommand(provider.command)) {
+          if (!await cliAvailable(provider.command, ['--version'])) reasons[provider.id] = '找不到 Claude Code，请先安装并确认 claude --version 可以运行。';
+          else if (!await cliAvailable(provider.command, ['auth', 'status'])) reasons[provider.id] = 'Claude Code 尚未登录，请先运行 claude auth login。';
+          providerHealth[provider.id] = !reasons[provider.id];
+        }
         else providerHealth[provider.id] = null;
       }
       return sendJson(res, 200, { providers: providerHealth, models, reasons, workspace: WORKSPACE });

@@ -24,7 +24,7 @@ For example, ask for a to-do web page and a user guide. The team first explains 
 | **Let AI route the work** | An agent judges the request and chooses solo, sequential, or parallel execution. The task card shows its reason; obvious one-sentence and short-answer requests are kept with one member. |
 | **Watch the work happen** | Members walk to their desks and sit down. The live panel shows progress, activity, individual outputs, handoffs, and the final result. You can stop a running task. |
 | **Build your own team** | Configure 1–8 members: names, roles, expertise, routing keywords, personal instructions, animal sprites, colors, and agent bindings. |
-| **Connect different agents** | Guided options for Ollama, Codex, Hermes, DeepSeek, OpenRouter, and OpenAI API, plus advanced compatible API, custom HTTP JSON, and local command-line integrations. |
+| **Connect different agents** | Guided options for Ollama, Codex, Claude Code, Hermes, DeepSeek, OpenRouter, and OpenAI API, plus advanced compatible API, custom HTTP JSON, and local command-line integrations. |
 | **Explore the office** | Click characters and room signs. Keep notes on the board, arrange work at the meeting table, browse workspace files on the shelf, change the daylight in the kitchen, or talk to a member in the lounge. |
 | **Make it yours** | Change the office name, subtitle, location sign, emoji or image logo, quick tasks, day/night setting, idle movement, and short-task animation timing. The scene can fill the screen. |
 
@@ -68,11 +68,20 @@ The guided setup follows **choose service → enter a key or select a local mode
 | --- | --- | --- |
 | **Local Ollama model** | Running Ollama and a downloaded model | Detected models appear in the UI; the app can pick an available model automatically. |
 | **Codex** | Installed and authenticated Codex CLI | Runs tasks with Codex's own tools and local file capabilities. |
+| **Claude Code** | Installed and authenticated Claude Code CLI | Runs `claude -p` in the local workspace, with the file editing and tools Claude Code permits. |
 | **Hermes Agent** | A working Hermes installation | Sends tasks to Hermes; Hermes manages its own internal subagents. |
 | **DeepSeek / OpenRouter / OpenAI API** | The provider's API key and, if needed, a model ID | Service templates fill the base URL and send text through `/chat/completions`. |
 | **Other agents and APIs** | A local command or provider documentation | Advanced settings support compatible APIs, custom HTTP JSON, and command-line agents. |
 
 Each member can use a different agent. An API key is separate from a ChatGPT web login. Cost, network access, file operations, and tool use depend on the service you configure. The compatible API integration itself sends text requests only; for local files or tools, bind a command-line agent that supports them.
+
+### Connect Claude Code
+
+1. Install the CLI using the [official Claude Code setup guide](https://code.claude.com/docs/en/setup). In a terminal, run `claude --version`, `claude auth login`, then `claude auth status` to confirm you are signed in. If the office was already running before installation, restart it so it can read the updated PATH.
+2. In the office, open **Customize → Connect agents → Claude Code**. Enable it, choose **Use for all members** or assign individual members, and save. This uses the local Claude Code login; **no API key is entered in the office**.
+3. When you submit a task, the office runs Claude Code non-interactively in `workspace/`. The preset permits file edits; other tools still follow your Claude Code permissions. Results and workspace files appear in the task panel.
+
+This project's solo, relay, and parallel modes still coordinate the office team. Claude Code can use its own subagents if configured, but their individual steps are not displayed as separate office characters. The connection status checks that the command runs and is authenticated; completing a task also depends on your Claude Code account, permissions, and available tools. Use Advanced integrations if you need to change the command or permission flags.
 
 ## Customization and local data
 
@@ -88,10 +97,10 @@ Configuration lives in `data/settings.json`. API keys are stored separately in `
 ## Current limits
 
 - AI can make a poor routing choice; use manual dispatch when you need a fixed workflow.
-- Hermes must be installed and working independently. This project does not install or repair it. Use advanced settings or `PIXEL_OFFICE_HERMES_SCRIPT` for a custom startup script.
+- Claude Code and Hermes must be installed and working independently. This project does not install or repair them. For a custom Hermes startup script, use advanced settings or `PIXEL_OFFICE_HERMES_SCRIPT`.
 - Compatible API integration currently uses Chat Completions. Other protocols require custom advanced HTTP setup following your provider's documentation.
 - Custom command-line agents run as your local user. Configure only commands you trust and check the permissions and costs of each service.
 
 The scene and characters are original pixel art and do not use assets from Stardew Valley or other products. Licensed under [MIT](LICENSE).
 
-**Related search terms:** visual AI agent office, pixel art AI workspace, multi-agent dashboard, automatic task routing, top-down pixel art, Ollama, Codex, Hermes.
+**Related search terms:** visual AI agent office, pixel art AI workspace, multi-agent dashboard, automatic task routing, top-down pixel art, Ollama, Codex, Claude Code, Hermes.

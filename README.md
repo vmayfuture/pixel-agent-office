@@ -24,7 +24,7 @@
 | **让 AI 决定分工** | Agent 先判断复杂度，再安排一人独立处理、小队接力或并行。任务卡显示判断理由；明显的单句、短答任务优先交给一人。 |
 | **看见协作过程** | 成员走到工位并坐下工作。右侧实时展示进度、活动记录、各步骤输出、交接内容和最终结果；可以停止正在运行的任务。 |
 | **自由组建小队** | 支持 1–8 位成员。名字、职位、专长、自动派工词、个人要求、动物角色、颜色和使用的 Agent 都可修改。 |
-| **接入不同 Agent** | 提供 Ollama、Codex、Hermes、DeepSeek、OpenRouter、OpenAI API 的接入入口，也能添加兼容 API、自定义 HTTP JSON 接口或本地命令行 Agent。 |
+| **接入不同 Agent** | 提供 Ollama、Codex、Claude Code、Hermes、DeepSeek、OpenRouter、OpenAI API 的接入入口，也能添加兼容 API、自定义 HTTP JSON 接口或本地命令行 Agent。 |
 | **探索办公室** | 点击角色和房间设施：黑板记计划，会议桌安排协作，书架查看工作区文件，茶水间调昼夜，休息角直接和成员交谈。 |
 | **打造自己的场景** | 修改办公室名称、副标题、门牌、Emoji 或图片 LOGO、快捷任务、昼夜、角色闲逛与短任务动画时长；场景可全屏。 |
 
@@ -68,11 +68,20 @@
 | --- | --- | --- |
 | **Ollama 本地模型** | 已运行的 Ollama 与已下载的模型 | 页面列出检测到的模型，可自动选择；适合在本机完成模型支持的文本任务。 |
 | **Codex** | 已安装、已登录的 Codex CLI | 使用 Codex 自身的工具和文件能力执行任务。 |
+| **Claude Code** | 已安装、已登录的 Claude Code CLI | 在本机工作区调用 `claude -p`；可使用 Claude Code 获准的文件编辑和工具能力。 |
 | **Hermes Agent** | 能在终端独立运行的 Hermes | 把任务交给 Hermes；Hermes 内部的子代理由 Hermes 自己管理。 |
 | **DeepSeek / OpenRouter / OpenAI API** | 对应服务商的 API Key，必要时选模型 ID | 选择服务模板后自动填写基础地址，通过 `/chat/completions` 发送文本请求。 |
 | **其他 Agent / API** | 本机命令或服务商文档 | 在“高级接入设置”中配置兼容 API、自定义 HTTP JSON 和命令行 Agent。 |
 
 每位成员可以绑定不同的 Agent。云端 API Key 与 ChatGPT 网页登录不是同一种凭据；费用、联网、文件操作与工具能力由你接入的服务决定。兼容 API 接入本身只发送文本；需要本机文件或工具能力时，请使用具备这些能力的命令行 Agent。
+
+### Claude Code 怎么接入
+
+1. 按 [Claude Code 官方安装说明](https://code.claude.com/docs/en/setup)安装命令行版，在终端运行 `claude --version`、`claude auth login`，再用 `claude auth status` 确认已登录。如果办公室在安装前已经启动，请重启办公室，让它读取新的 PATH。
+2. 打开办公室右上角 **“自定义 → 接入 Agent → Claude Code”**，启用它，选择 **“让全部成员使用”** 或分别指定成员，然后保存。这里使用 Claude Code 的本机登录，**不用填写 API Key**。
+3. 派发任务后，办公室会在 `workspace/` 目录以非交互方式启动 Claude Code。默认允许文件编辑，其他工具仍遵循 Claude Code 的权限设置；结果和工作区文件会显示在任务面板。
+
+小队的独立处理、接力和并行仍由本项目调度；Claude Code 内部的子代理如已配置，可由 Claude Code 自行使用，但内部子代理的每一步不会单独显示成办公室角色。接入状态只检查命令是否可运行及是否登录，实际任务还取决于 Claude Code 账户、权限与可用工具。需要改命令或权限参数时可打开“高级接入设置”。
 
 ## 自定义与本地数据
 
@@ -88,10 +97,10 @@
 ## 当前边界
 
 - AI 分工可能判断失误；需要固定流程时可使用手动派工。
-- Hermes 需要先在本机安装并能独立运行；本项目不安装或修复 Hermes。特殊安装可在高级设置中指定启动命令，或设置 `PIXEL_OFFICE_HERMES_SCRIPT`。
+- Claude Code 和 Hermes 需要先在本机安装并能独立运行；本项目不安装或修复它们。Hermes 特殊安装可在高级设置中指定启动命令，或设置 `PIXEL_OFFICE_HERMES_SCRIPT`。
 - 兼容 API 目前使用 Chat Completions；其他协议需按服务商文档配置高级 HTTP 接入。
 - 自定义命令行 Agent 以本机用户身份运行，请只配置你信任的命令，并确认对应服务的费用与权限。
 
 场景和角色为原创像素绘制，没有使用《星露谷物语》或其他产品的游戏素材。项目采用 [MIT 许可证](LICENSE)。
 
-**相关关键词：** AI Agent 可视化、像素办公室、多 Agent 协作、自动分工、俯视像素、agent visualization、pixel art AI workspace、multi agent dashboard、Ollama、Codex、Hermes。
+**相关关键词：** AI Agent 可视化、像素办公室、多 Agent 协作、自动分工、俯视像素、agent visualization、pixel art AI workspace、multi agent dashboard、Ollama、Codex、Claude Code、Hermes。
