@@ -1,0 +1,10 @@
+/data/
+/workspace/
+/.playwright-cli/
+/node_modules/
+/.env
+/.env.*
+*.log
+*预览.png
+preview-*.png
+*.local

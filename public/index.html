@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4ead4">
+  <title>松果办公室 · 像素 AI 小队</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" type="module"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon" id="brand-icon" aria-hidden="true">🦊</div>
+        <div>
+          <h1 id="brand-name">松果办公室</h1>
+          <p id="brand-tagline">一间会认真干活的像素小屋</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="connection" id="connection"><span class="connection-dot"></span>连接中</span>
+        <span class="day-chip" id="day-chip">秋日 · 晴</span>
+        <button class="button button-settings" id="open-settings" type="button">⚙ 自定义</button>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <div class="left-column">
+      <section class="office-card" aria-label="像素办公室场景">
+        <div class="card-heading">
+          <div>
+            <span class="eyebrow">LIVE OFFICE · 01</span>
+            <h2>办公室实况 <span class="heading-sparkle">✦</span></h2>
+          </div>
+          <div class="scene-heading-actions"><button type="button" class="small-action" id="toggle-scene-fullscreen">⛶ 场景全屏</button><div class="clock"><span id="clock">--:--</span><small>小队在线</small></div></div>
+        </div>
+        <div class="scene-wrap">
+          <div class="canvas-stage">
+          <canvas id="office-canvas" width="960" height="608" aria-label="俯视像素办公室，点击角色查看信息"></canvas>
+          <div class="scene-hotspots" aria-label="房间设施">
+            <button type="button" class="scene-hotspot hotspot-board" data-zone="board" aria-label="打开黑板今日计划" title="今日计划">计划</button>
+            <button type="button" class="scene-hotspot hotspot-meeting" data-zone="meeting" aria-label="打开小队会议桌" title="小队会议桌">开会</button>
+            <button type="button" class="scene-hotspot hotspot-shelf" data-zone="shelf" aria-label="打开书架工作区" title="工作区书架">文件</button>
+            <button type="button" class="scene-hotspot hotspot-kitchen" data-zone="kitchen" aria-label="打开茶水间" title="茶水间">茶水</button>
+            <button type="button" class="scene-hotspot hotspot-lounge" data-zone="lounge" aria-label="打开休息角" title="休息角">聊天</button>
+          </div>
+          <div class="scene-corner scene-corner-top" id="scene-location">枫叶街 · 3 号</div>
+          <div class="scene-corner scene-corner-bottom">点击角色或房间设施，探索办公室</div>
+          </div>
+        </div>
+        <div class="office-footer">
+          <div class="office-key"><span class="key-work"></span>认真工作 <span class="key-idle"></span>自由活动</div>
+          <div class="office-count" id="office-count">6 位职员在办公室</div>
+        </div>
+      </section>
+
+      </div>
+
+      <aside class="sidebar">
+      <section class="composer-card" aria-labelledby="composer-heading">
+        <div class="composer-intro"><span class="composer-badge">交给小队</span><h2 id="composer-heading">写下你要做的事</h2><p>任何任务都从这里提交；成员和执行器按你的配置工作。</p></div>
+        <form id="task-form" class="composer-form">
+          <label class="visually-hidden" for="task-prompt">任务内容</label>
+          <textarea id="task-prompt" maxlength="2000" rows="2" placeholder="描述你的目标、要求和交付物……" required></textarea>
+          <details class="dispatch-options"><summary>派工设置（可选）</summary><div class="composer-controls">
+            <label class="mode-label" for="task-agent">执行成员</label>
+            <select id="task-agent" aria-label="执行成员"></select>
+            <label class="mode-label" for="task-provider">执行器</label>
+            <select id="task-provider" aria-label="执行器"></select>
+            <label class="mode-label" for="collaboration-mode">协作方式</label>
+            <select id="collaboration-mode" aria-label="协作方式"><option value="auto">AI 自动判断分工</option><option value="solo">一位成员独立处理</option><option value="relay">小队接力</option><option value="parallel">小队并行</option></select>
+          </div>
+          <div class="collaboration-picker" id="collaboration-picker" hidden><strong id="collaboration-title">邀请协作成员</strong><div id="collaborator-list" class="collaborator-list"></div><small id="collaboration-hint"></small></div></details>
+          <button class="button button-primary" id="submit-button" type="submit">交给小队 <span aria-hidden="true">➜</span></button>
+          <button class="button button-cancel" id="cancel-button" type="button" hidden>停止任务</button>
+        </form>
+        <div class="composer-bottom"><div class="prompt-samples" id="prompt-presets"></div><span id="provider-hint">执行能力由所选执行器决定。</span></div>
+      </section>
+        <section class="panel task-panel" aria-labelledby="task-heading">
+          <div class="panel-title"><span class="panel-icon panel-icon-amber">📌</span><h2 id="task-heading">正在进行</h2><span class="panel-meta" id="task-status-badge">空闲</span></div>
+          <div id="task-content" class="task-content"><div class="empty-task"><span class="empty-illustration">✉</span><strong>今天想让小队做什么？</strong><small>写下任务，小队就会开始工作。</small></div></div>
+        </section>
+
+        <section class="panel roster-panel" aria-labelledby="roster-heading">
+          <div class="panel-title"><span class="panel-icon panel-icon-green">🐾</span><h2 id="roster-heading">小队成员</h2><span class="panel-meta" id="roster-count">0 / 6 工作中</span></div>
+          <div class="roster" id="roster"></div>
+          <div class="agent-detail" id="agent-detail" hidden></div>
+        </section>
+
+        <details class="panel log-panel" aria-labelledby="log-heading">
+          <summary class="panel-title"><span class="panel-icon panel-icon-blue">☷</span><h2 id="log-heading">活动记录</h2><span class="panel-meta">展开查看 ▾</span></summary>
+          <ol id="activity-log" class="activity-log"><li class="log-empty">屋里很安静，大家正在等任务。</li></ol>
+        </details>
+      </aside>
+    </main>
+
+    <footer class="page-footer"><span>原创像素办公室 · 本机运行</span><span id="footer-health">正在检查本机能力…</span></footer>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-heading">
+    <div class="settings-shell">
+      <div class="settings-header"><div><span class="eyebrow">MAKE IT YOURS</span><h2 id="settings-heading">自定义办公室</h2><p>改完点击保存，配置会留在这台电脑上。</p></div><button type="button" class="settings-close" id="settings-close" aria-label="关闭设置">×</button></div>
+      <div class="settings-body">
+        <nav class="settings-nav" aria-label="设置分类">
+          <button type="button" data-settings-tab="setup" class="active">✨ 接入 Agent</button>
+          <button type="button" data-settings-tab="brand">🏡 品牌与场景</button>
+          <button type="button" data-settings-tab="agents">🐾 小队成员</button>
+          <button type="button" data-settings-tab="presets">📋 快捷任务</button>
+          <button type="button" data-settings-tab="providers">⚙ 高级接入设置</button>
+        </nav>
+        <div id="settings-content" class="settings-content"></div>
+      </div>
+      <div class="settings-footer"><span id="settings-feedback">最多 8 位成员，设置保存在本机。</span><div><button type="button" class="button button-quiet" id="settings-cancel">取消</button><button type="button" class="button button-primary" id="settings-save">保存设置</button></div></div>
+    </div>
+  </dialog>
+  <dialog class="scene-dialog" id="scene-dialog" aria-labelledby="scene-dialog-title">
+    <div class="scene-dialog-head"><div><span class="eyebrow">OFFICE CORNER</span><h2 id="scene-dialog-title">办公室</h2></div><button type="button" class="settings-close" id="scene-dialog-close" aria-label="关闭场景窗口">×</button></div>
+    <div class="scene-dialog-content" id="scene-dialog-content"></div>
+  </dialog>
+</body>
+</html>
