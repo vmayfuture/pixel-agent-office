@@ -1,65 +1,97 @@
-# Pixel Agent Office
+# Pixel Agent Office · 松果办公室
 
-[简体中文](README.md) · [License](LICENSE)
+> Put your AI agents in a living, top-down pixel office. Describe a goal; they decide how to divide the work, walk to their desks, and show you what happened.
 
-**A working, top-down pixel art office for AI agents.** Describe a task and an agent first decides whether one member can handle it or whether the work should be handed off or done in parallel. Watch members walk to their desks and see the routing reason, handoffs, progress, and final result.
+**Local-first · Automatic task routing · Multi-agent collaboration · Customizable team · Original pixel art**
 
-![Clean preview of Pixel Agent Office](docs/screenshot.png)
+[简体中文](README.md) · [Quick start](#quick-start) · [Connect agents](#connect-agents) · [MIT license](LICENSE)
 
-## Who it is for
+## What is this?
 
-People who want a visual interface for local or cloud AI agents without configuring JSON or designing a multi-agent workflow first. On desktop, the main dashboard fits within one viewport; long results scroll inside the task panel. Narrow screens use a vertical layout.
+Pixel Agent Office is an open-source **visual workspace for AI agents**. It turns task submission, executor selection, and progress tracking into a small office with characters, desks, and interactive rooms. You do not have to choose a collaboration mode before every task: by default, a configured agent analyzes the request and selects solo work, sequential handoff, or parallel collaboration.
 
-## Get started
+For example, ask for a to-do web page and a user guide. The team first explains its routing choice. During execution, characters move and sit at their desks while the task card shows which agent is working, the reason for the assignment, each step and handoff, and the final output. You can copy the result or inspect files in the workspace.
 
-Requires **Node.js 20 or newer**. There are no runtime npm dependencies, so `npm install` is not needed.
+![Pixel Agent Office: top-down scene, task composer, team, and progress panel](docs/screenshot.png)
 
-1. Download and extract the repository, or run `git clone https://github.com/vmayfuture/pixel-agent-office.git`.
-2. On Windows, double-click **启动办公室.cmd**. On macOS or Linux, run `node server.mjs` in the project directory. `npm start` works too.
-3. Open <http://127.0.0.1:4321> and choose **Customize → Connect Agent**. Pick a service you already have, follow the on-screen steps, and save.
-4. Describe any task and click **Send to team**. AI routing is the default.
+*The screenshot comes from a separate instance with empty task data. Your office changes with your team and settings.*
 
-The server binds only to `127.0.0.1`. Close its terminal to stop it. Set `PIXEL_OFFICE_PORT` to change the default port `4321`.
+## Feature tour
 
-## Connect an agent
+| What you can do | How it works |
+| --- | --- |
+| **Send any task from one box** | Describe your goal and click “Send to team.” Tasks are not limited to predefined categories; the actual capabilities come from the agents you connect. |
+| **Let AI route the work** | An agent judges the request and chooses solo, sequential, or parallel execution. The task card shows its reason; obvious one-sentence and short-answer requests are kept with one member. |
+| **Watch the work happen** | Members walk to their desks and sit down. The live panel shows progress, activity, individual outputs, handoffs, and the final result. You can stop a running task. |
+| **Build your own team** | Configure 1–8 members: names, roles, expertise, routing keywords, personal instructions, animal sprites, colors, and agent bindings. |
+| **Connect different agents** | Guided options for Ollama, Codex, Hermes, DeepSeek, OpenRouter, and OpenAI API, plus advanced compatible API, custom HTTP JSON, and local command-line integrations. |
+| **Explore the office** | Click characters and room signs. Keep notes on the board, arrange work at the meeting table, browse workspace files on the shelf, change the daylight in the kitchen, or talk to a member in the lounge. |
+| **Make it yours** | Change the office name, subtitle, location sign, emoji or image logo, quick tasks, day/night setting, idle movement, and short-task animation timing. The scene can fill the screen. |
 
-| Option | What you need | Notes |
+### Automatic routing and manual control
+
+The default path is **analyze → assign → execute → show result**. Automatic routing uses up to three members:
+
+- **Solo:** one member handles a single, small deliverable.
+- **Sequential handoff:** each member receives the previous member's output.
+- **Parallel:** members work on distinct parts at the same time, then the lead synthesizes a final result.
+
+If the routing response cannot be parsed, the originally selected member handles the task alone and the task card explains the fallback. Open **“Dispatch settings (optional)”** to choose the member, executor, or collaboration mode yourself. Only one top-level task runs at a time.
+
+### Things to click in the office
+
+- **Characters:** see a member's name, expertise, connected agent, and recent work; assign them a task.
+- **Planning board:** add, finish, or delete notes and inspect recent tasks.
+- **Meeting table:** return to task entry with automatic routing or a manual sequential/parallel choice.
+- **Workspace shelf:** refresh the file list and preview small text files.
+- **Kitchen:** follow local time or set permanent day or night.
+- **Lounge:** send a real task directly to a selected member and see the reply in the task card.
+
+The dashboard fits common desktop window sizes with long results scrolling inside the task panel. Narrow screens use a vertical layout.
+
+## Quick start
+
+Requires **Node.js 20 or newer**. There are no runtime npm dependencies; `npm install` is not needed.
+
+1. [Download the repository ZIP](https://github.com/vmayfuture/pixel-agent-office/archive/refs/heads/main.zip) and extract it, or run `git clone https://github.com/vmayfuture/pixel-agent-office.git`.
+2. On Windows, double-click [启动办公室.cmd](启动办公室.cmd). On macOS or Linux, run `node server.mjs` in the project directory. `npm start` works as well.
+3. Open <http://127.0.0.1:4321> and choose **Customize → Connect Agent**. Pick a service you already have, follow the guided setup, and save.
+4. Describe a task and click **Send to team**. AI routing is the default.
+
+The server listens only on `127.0.0.1`; close its terminal to stop it. The default port is `4321` and can be changed with `PIXEL_OFFICE_PORT`.
+
+## Connect agents
+
+The guided setup follows **choose service → enter a key or select a local model → assign members → save**. To start quickly, click **Use for all members**; individual bindings can be changed later.
+
+| Integration | What you need | What it provides |
 | --- | --- | --- |
-| Local Ollama model | Running Ollama and a downloaded model | The setup screen lists detected models and can select one automatically. |
-| Codex | Installed and authenticated Codex CLI | Suitable for tasks that need local files and tools. |
-| Hermes Agent | A working Hermes installation | Hermes manages its own internal subagents. |
-| DeepSeek, OpenRouter, OpenAI API | The provider's API key and, if needed, a model ID | Select a template under **Cloud API**; the base URL is filled in. Uses `/chat/completions`. |
-| Other agents and APIs | Provider documentation or a local command | **Advanced integration** supports compatible APIs, custom HTTP JSON, and command-line agents. |
+| **Local Ollama model** | Running Ollama and a downloaded model | Detected models appear in the UI; the app can pick an available model automatically. |
+| **Codex** | Installed and authenticated Codex CLI | Runs tasks with Codex's own tools and local file capabilities. |
+| **Hermes Agent** | A working Hermes installation | Sends tasks to Hermes; Hermes manages its own internal subagents. |
+| **DeepSeek / OpenRouter / OpenAI API** | The provider's API key and, if needed, a model ID | Service templates fill the base URL and send text through `/chat/completions`. |
+| **Other agents and APIs** | A local command or provider documentation | Advanced settings support compatible APIs, custom HTTP JSON, and command-line agents. |
 
-An API key is separate from a ChatGPT web login. Cost, network access, file operations, and tool use depend on the agent or service you configure. The compatible API integration sends text requests only; bind a capable command-line agent when the work needs local file or tool access.
+Each member can use a different agent. An API key is separate from a ChatGPT web login. Cost, network access, file operations, and tool use depend on the service you configure. The compatible API integration itself sends text requests only; for local files or tools, bind a command-line agent that supports them.
 
-Each team member can use a different agent. For a quick start, click **Use for all members**, then customize individual members later. You can also change the office name, logo, member expertise, avatars, routing keywords, quick tasks, and day or night scene.
+## Customization and local data
 
-## Automatic task routing
+Settings let you change:
 
-The default workflow is **analyze → assign → execute → show result**. The selected agent proposes solo, sequential handoff, or parallel work, with up to three members. The task card shows its reason and each member's steps. If the routing answer cannot be parsed, the originally selected member handles the task alone and the card explains the fallback.
+- **Brand and scene:** name, subtitle, location sign, logo, daylight, idle movement, and animation timing.
+- **Team:** size, order, names, expertise, routing keywords, personal instructions, appearance, and agent bindings.
+- **Quick tasks:** button title, prompt, member, and executor.
+- **Advanced integrations:** multiple executors, URLs, request formats, CLI arguments, and persistent instructions.
 
-Open **Dispatch settings (optional)** below the task box to choose a member, executor, or collaboration mode yourself. Sequential work passes the previous member's output to the next; parallel work runs contributions together and has the lead member synthesize the result. One top-level task runs at a time.
-
-## Explore the office
-
-Click a character to inspect them or assign work. Click the small signs in the scene to open the planning board, meeting table, workspace shelf, kitchen, and lounge. The board stores notes, the shelf shows workspace files, and the meeting table offers manual collaboration controls. You can also make the scene full screen.
-
-## Local data and security
-
-- `data/settings.json`: office and agent configuration.
-- `data/provider-secrets.json`: API keys; the page state endpoint does not return full keys.
-- `data/tasks.json` and `data/board.json`: task history and planning notes.
-- `workspace/`: working directory for command-line agents.
-
-These directories are ignored by Git. **Do not commit your personal `data/` or `workspace/` to a public repository.** A custom command-line agent runs as your local user, so configure only commands and endpoints you trust. Check the permissions, costs, and operational scope of each agent you enable.
+Configuration lives in `data/settings.json`. API keys are stored separately in `data/provider-secrets.json` and are not returned in full by the page state endpoint. Task history and planning notes live in `data/tasks.json` and `data/board.json`. Command-line agents work in `workspace/`. Git ignores these directories: **do not commit personal data or keys to a public repository**.
 
 ## Current limits
 
-- AI routing can make a poor choice; use the optional manual controls when needed. An unavailable executor can still cause a task to fail.
-- Hermes must be installed and working separately. This project does not install or repair Hermes. For a custom PowerShell startup script, set `PIXEL_OFFICE_HERMES_SCRIPT` or configure the command in advanced settings.
-- The API integration uses Chat Completions. Other protocols can be configured through advanced HTTP integration using your provider's documentation.
+- AI can make a poor routing choice; use manual dispatch when you need a fixed workflow.
+- Hermes must be installed and working independently. This project does not install or repair it. Use advanced settings or `PIXEL_OFFICE_HERMES_SCRIPT` for a custom startup script.
+- Compatible API integration currently uses Chat Completions. Other protocols require custom advanced HTTP setup following your provider's documentation.
+- Custom command-line agents run as your local user. Configure only commands you trust and check the permissions and costs of each service.
 
 The scene and characters are original pixel art and do not use assets from Stardew Valley or other products. Licensed under [MIT](LICENSE).
 
-**Search terms:** visual AI agent office, pixel art AI workspace, multi-agent dashboard, automatic task routing, agent visualization, top-down pixel art, Ollama, Codex, Hermes.
+**Related search terms:** visual AI agent office, pixel art AI workspace, multi-agent dashboard, automatic task routing, top-down pixel art, Ollama, Codex, Hermes.
