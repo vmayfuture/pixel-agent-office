@@ -4,7 +4,7 @@
 
 **本机运行 · AI 自动分工 · 多 Agent 协作 · 自由配置小队 · 原创像素场景**
 
-[English](README.en.md) · [快速开始](#快速开始) · [接入-agent](#接入-agent) · [MIT 许可证](LICENSE)
+[English](README.en.md) · [快速开始](#快速开始) · [接入 Agent](#接入-agent) · [配置与更新](#配置与更新) · [常见问题](#常见问题) · [MIT 许可证](LICENSE)
 
 ## 这是什么
 
@@ -51,37 +51,276 @@
 
 ## 快速开始
 
-需要 **Node.js 20 或更新版本**。项目没有运行时 npm 依赖，无需 `npm install`。
+### 1. 准备环境
 
-1. [下载仓库 ZIP](https://github.com/vmayfuture/pixel-agent-office/archive/refs/heads/main.zip) 并解压，或执行 `git clone https://github.com/vmayfuture/pixel-agent-office.git`。
-2. Windows 双击 [启动办公室.cmd](启动办公室.cmd)。macOS / Linux 在项目目录运行 `node server.mjs`；`npm start` 也可以。
-3. 打开 <http://127.0.0.1:4321>，点击右上角 **“自定义 → 接入 Agent”**，选一个已经可用的服务并保存。
-4. 在右侧写下任务，点击 **“交给小队”**。默认由 AI 判断是否需要协作。
+| 环境 | 要求 |
+| --- | --- |
+| Node.js | **20 或更新版本**，可从 [Node.js 官网](https://nodejs.org/)安装。 |
+| Git | 使用命令下载仓库时需要；下载 ZIP 可省略。 |
+| Agent / 模型服务 | 从下方接入方式中选择至少一种，完成配置后才能执行真实任务。 |
 
-服务只监听 `127.0.0.1`；关闭运行它的终端即可停止。默认端口是 `4321`，可用环境变量 `PIXEL_OFFICE_PORT` 修改。
+在终端检查 Node.js：
+
+```sh
+node --version
+```
+
+版本号应为 `v20` 或更高。项目没有运行时 npm 依赖，下载后可以直接启动。
+
+### 2. 下载项目
+
+在你希望存放项目的文件夹中打开终端，运行：
+
+```sh
+git clone https://github.com/vmayfuture/pixel-agent-office.git
+cd pixel-agent-office
+```
+
+也可以 [下载 ZIP](https://github.com/vmayfuture/pixel-agent-office/archive/refs/heads/main.zip) 并解压。使用 ZIP 时，请在解压后的项目文件夹中打开终端，确认能看到 `server.mjs` 和 `package.json`。
+
+### 3. 启动办公室
+
+以下命令都在 **项目文件夹内** 执行，按你的系统选择一种。
+
+**Windows · PowerShell**
+
+```powershell
+.\启动办公室.cmd
+```
+
+也可以在文件夹里双击 [启动办公室.cmd](启动办公室.cmd)，它会自动打开浏览器。
+
+**macOS / Linux · Terminal**
+
+```bash
+node server.mjs
+```
+
+**通用启动方式 · 已安装 npm 时可选**
+
+```sh
+npm start
+```
+
+启动成功后，终端会显示类似信息：
+
+```text
+像素办公室已启动：http://127.0.0.1:4321
+Agent 工作区：…/pixel-agent-office/workspace
+```
+
+在浏览器打开 **[http://127.0.0.1:4321](http://127.0.0.1:4321)**。保持启动服务的终端运行。
+
+### 4. 接入 Agent 并派发任务
+
+1. 点击右上角 **“自定义 → 接入 Agent”**。
+2. 按下面的 [接入指南](#接入-agent)选择一个已经安装或配置好的 Agent / 模型服务。
+3. 启用它，点击 **“让全部成员使用”**，或分别指定每位成员，然后 **保存设置**。
+4. 回到主界面，输入任务，点击 **“交给小队”**。默认由 AI 判断是否需要协作。
+
+> 首次使用只需配置一种接入方式。页面能打开表示办公室服务已启动；执行任务还需要配置可用的 Agent。
 
 ## 接入 Agent
 
-普通接入页按照 **选服务 → 填密钥或选择本地模型 → 分给成员 → 保存** 的顺序引导。初次使用可点击 **“让全部成员使用”**，以后再为每位成员单独配置。
+根据你准备使用的服务，进入对应章节。下面的安装命令用于安装各自的 Agent，办公室通过本机命令或 API 调用它们。
 
-| 接入方式 | 需要准备 | 能做什么 |
+| 接入指南 | 需要准备 | 能做什么 |
 | --- | --- | --- |
-| **Ollama 本地模型** | 已运行的 Ollama 与已下载的模型 | 页面列出检测到的模型，可自动选择；适合在本机完成模型支持的文本任务。 |
-| **Codex** | 已安装、已登录的 Codex CLI | 使用 Codex 自身的工具和文件能力执行任务。 |
-| **Claude Code** | 已安装、已登录的 Claude Code CLI | 在本机工作区调用 `claude -p`；可使用 Claude Code 获准的文件编辑和工具能力。 |
-| **Hermes Agent** | 能在终端独立运行的 Hermes | 把任务交给 Hermes；Hermes 内部的子代理由 Hermes 自己管理。 |
-| **DeepSeek / OpenRouter / OpenAI API** | 对应服务商的 API Key，必要时选模型 ID | 选择服务模板后自动填写基础地址，通过 `/chat/completions` 发送文本请求。 |
-| **其他 Agent / API** | 本机命令或服务商文档 | 在“高级接入设置”中配置兼容 API、自定义 HTTP JSON 和命令行 Agent。 |
+| **[Ollama 本地模型](#ollama-本地模型)** | 已运行的 Ollama 与已下载的模型 | 页面列出本地模型，可自动选择。 |
+| **[Codex](#codex)** | 已安装、已登录的 Codex CLI | 使用 Codex 的工具和本机文件能力。 |
+| **[Claude Code](#claude-code)** | 已安装、已登录的 Claude Code CLI | 使用 Claude Code 获准的文件编辑与工具能力。 |
+| **[Hermes Agent](#hermes-agent)** | 能在终端独立运行的 Hermes | 使用 Hermes 的模型、工具和内部子代理。 |
+| **[云端 API](#云端-api)** | 服务商的 API Key 和模型 ID | 支持 DeepSeek、OpenRouter、OpenAI API 和兼容服务。 |
+| **[其他 Agent / API](#其他-agent--api)** | 本机命令或服务商接口文档 | 自定义命令行、HTTP JSON 或兼容 API。 |
 
-每位成员可以绑定不同的 Agent。云端 API Key 与 ChatGPT 网页登录不是同一种凭据；费用、联网、文件操作与工具能力由你接入的服务决定。兼容 API 接入本身只发送文本；需要本机文件或工具能力时，请使用具备这些能力的命令行 Agent。
+新安装命令行 Agent 后，请打开新终端并重启办公室，让服务读取更新后的 PATH。每位成员可以绑定不同的 Agent。
 
-### Claude Code 怎么接入
+### Ollama 本地模型
 
-1. 按 [Claude Code 官方安装说明](https://code.claude.com/docs/en/setup)安装命令行版，在终端运行 `claude --version`、`claude auth login`，再用 `claude auth status` 确认已登录。如果办公室在安装前已经启动，请重启办公室，让它读取新的 PATH。
-2. 打开办公室右上角 **“自定义 → 接入 Agent → Claude Code”**，启用它，选择 **“让全部成员使用”** 或分别指定成员，然后保存。这里使用 Claude Code 的本机登录，**不用填写 API Key**。
-3. 派发任务后，办公室会在 `workspace/` 目录以非交互方式启动 Claude Code。默认允许文件编辑，其他工具仍遵循 Claude Code 的权限设置；结果和工作区文件会显示在任务面板。
+**安装并启动服务**
 
-小队的独立处理、接力和并行仍由本项目调度；Claude Code 内部的子代理如已配置，可由 Claude Code 自行使用，但内部子代理的每一步不会单独显示成办公室角色。接入状态只检查命令是否可运行及是否登录，实际任务还取决于 Claude Code 账户、权限与可用工具。需要改命令或权限参数时可打开“高级接入设置”。
+按 [Ollama 官方说明](https://docs.ollama.com/quickstart)安装。Windows / macOS 安装后打开 Ollama 应用；Linux 如果服务尚未运行，在一个终端执行并保持运行：
+
+```sh
+ollama serve
+```
+
+**下载模型并检查**
+
+在另一个终端运行。下面以 [Qwen3 4B](https://ollama.com/library/qwen3:4b)为例，也可以使用其他已下载的模型：
+
+```sh
+ollama --version
+ollama pull qwen3:4b
+ollama list
+```
+
+**在办公室中接入**
+
+进入 **“自定义 → 接入 Agent → 本地模型”**，选择列表中的模型或“自动选可用模型”，启用并分给成员后保存。默认地址为 `http://127.0.0.1:11434`，无需 API Key。
+
+### Codex
+
+**安装 · Windows PowerShell**
+
+```powershell
+irm https://chatgpt.com/codex/install.ps1 | iex
+```
+
+**安装 · macOS / Linux**
+
+```bash
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
+```
+
+安装方式来源于 [OpenAI 官方 Codex CLI 文档](https://learn.chatgpt.com/docs/codex/cli)。已经安装 CLI 的用户可直接进行下一步。
+
+**登录**
+
+在新终端中运行，按提示完成登录：
+
+```sh
+codex login
+```
+
+**检查安装与登录状态**
+
+```sh
+codex --version
+codex login status
+```
+
+**在办公室中接入**
+
+进入 **“自定义 → 接入 Agent → Codex”**，启用并分给成员后保存。办公室使用本机 CLI 的登录和配置，在 `workspace/` 中执行任务。
+
+### Claude Code
+
+**安装 · Windows PowerShell**
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**安装 · macOS / Linux**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+其他安装方式见 [Claude Code 官方安装说明](https://code.claude.com/docs/en/setup)。已经安装 CLI 的用户可直接进行下一步。
+
+**登录**
+
+在新终端中运行：
+
+```sh
+claude auth login
+```
+
+**检查安装与登录状态**
+
+```sh
+claude --version
+claude auth status
+```
+
+**在办公室中接入**
+
+进入 **“自定义 → 接入 Agent → Claude Code”**，启用并分给成员后保存。使用本机登录，无需在办公室填写 API Key。任务在 `workspace/` 中运行，预设允许文件编辑，其他工具遵循 Claude Code 的权限设置。
+
+办公室负责小队的独立处理、接力和并行；Claude Code 可自行使用已配置的内部子代理，其内部步骤暂不单独显示成办公室角色。连接状态检查安装与登录，任务是否完成还取决于账户和工具权限。
+
+### Hermes Agent
+
+**安装 · Windows PowerShell**
+
+```powershell
+iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+```
+
+**安装 · macOS / Linux**
+
+```bash
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+```
+
+平台要求和其他安装方式见 [Hermes 官方安装说明](https://hermes-agent.nousresearch.com/docs/getting-started/installation)。已经有可运行的 Hermes 可直接进行下一步。
+
+**配置模型与工具**
+
+在新终端中运行，按向导选择模型服务并完成配置：
+
+```sh
+hermes setup
+```
+
+**验证能独立完成任务**
+
+```sh
+hermes -z "用一句话介绍自己"
+```
+
+**在办公室中接入**
+
+进入 **“自定义 → 接入 Agent → Hermes”**，启用并分给成员后保存。Hermes 的内部子代理由它自己管理。特殊启动脚本可在“高级接入设置”中配置；若使用 WSL，请在同一 WSL 环境中启动办公室和 Hermes。
+
+### 云端 API
+
+云端 API 在界面中配置：
+
+1. 打开 **“自定义 → 接入 Agent → 云端 API”**。
+2. 选择服务商模板。
+3. 粘贴服务商提供的 API Key，确认模型 ID；使用“其他兼容服务”时同时填写基础地址。
+4. 启用并分给成员，保存设置。
+
+| 服务商 | 预填的基础地址 | 模型 ID |
+| --- | --- | --- |
+| DeepSeek | `https://api.deepseek.com` | 可修改预填模型。 |
+| OpenRouter | `https://openrouter.ai/api/v1` | 从服务商模型列表复制。 |
+| OpenAI API | `https://api.openai.com/v1` | 可修改预填模型。 |
+| 其他兼容服务 | 自行填写 | 按服务商文档填写。 |
+
+API Key 与 ChatGPT 网页登录是不同凭据。此接入方式发送 Chat Completions 文本请求；需要本机文件或工具能力时，可绑定支持这些能力的命令行 Agent。
+
+### 其他 Agent / API
+
+打开 **“自定义 → 高级接入设置”**，选择“本地命令 Agent”“自定义 HTTP JSON”或“OpenAI 兼容 API”。按对应 Agent / 服务商的官方文档填写启动命令或接口。
+
+本地命令的参数每行一个；任务内容用 `{{prompt}}` 占位，工作目录可用 `{{workspace}}` 占位。命令在本项目的 `workspace/` 中启动。
+
+## 配置与更新
+
+### 更改端口
+
+默认只监听本机 `127.0.0.1:4321`。如需使用 `4322`，先停止当前办公室，再在项目文件夹中运行：
+
+**Windows · PowerShell**
+
+```powershell
+$env:PIXEL_OFFICE_PORT = "4322"
+node server.mjs
+```
+
+**macOS / Linux · Terminal**
+
+```bash
+PIXEL_OFFICE_PORT=4322 node server.mjs
+```
+
+然后打开 **[http://127.0.0.1:4322](http://127.0.0.1:4322)**。
+
+### 停止与更新
+
+停止：在运行服务的终端按 **Ctrl+C**，或关闭该终端。
+
+通过 Git 下载的项目，停止服务后在项目文件夹运行：
+
+```sh
+git pull --ff-only
+```
+
+完成后按上面的 [启动步骤](#3-启动办公室)重新启动。通过 ZIP 下载的项目可下载新版，保留自己的 `data/` 和 `workspace/` 文件夹。
 
 ## 自定义与本地数据
 
@@ -93,6 +332,17 @@
 - **高级接入**：添加多个执行器，配置接口、请求格式、命令参数和长期要求。
 
 设置保存在 `data/settings.json`；API Key 单独保存在 `data/provider-secrets.json`，页面状态接口不会返回完整密钥。任务历史与黑板便签分别保存在 `data/tasks.json`、`data/board.json`；命令行 Agent 的工作目录是 `workspace/`。这些目录已被 Git 忽略，**不要把个人数据或密钥提交到公开仓库**。
+
+## 常见问题
+
+| 现象 | 处理方法 |
+| --- | --- |
+| 提示找不到 Node.js | 安装 Node.js 20 或更新版本，再打开新终端。 |
+| 页面已打开，但任务执行失败 | 确认 Agent 在终端中可运行，并已启用、分配给成员和保存。 |
+| 已安装 Agent，办公室仍提示未连接 | 打开新终端验证命令，再重启办公室；特殊安装可在高级设置中填写可执行程序的完整路径。 |
+| Ollama 没有可选模型 | 确认服务运行，完成模型下载，并检查模型列表。 |
+| Claude Code 显示未登录 | 按 [Claude Code 登录步骤](#claude-code)登录并检查状态。 |
+| 端口被占用 | 按 [更改端口](#更改端口)启动，并访问新端口对应的网址。 |
 
 ## 当前边界
 
